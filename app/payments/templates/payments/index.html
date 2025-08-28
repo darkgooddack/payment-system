@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Orders</title>
+  <style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+        background-color: #f9f9f9;
+        color: #333;
+    }
+
+    h1 {
+        color: #222;
+    }
+
+    ul {
+        list-style: none;
+        padding: 0;
+    }
+
+    li {
+        padding: 10px;
+        margin-bottom: 5px;
+        background-color: #fff;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+    }
+
+    a {
+        text-decoration: none;
+        color: #007bff;
+    }
+
+    a:hover {
+        text-decoration: underline;
+    }
+
+    .button, button {
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 14px;
+    }
+
+    .button:hover, button:hover {
+        background-color: #0056b3;
+    }
+
+    .status {
+        font-weight: bold;
+    }
+
+    .status.paid {
+        color: green;
+    }
+
+    .status.unpaid {
+        color: red;
+    }
+  </style>
+</head>
+<body>
+  <h1>Orders</h1>
+  <ul>
+    {% for order in orders %}
+      <li>
+        <a href="{% url 'order_detail' order.id %}">Order #{{ order.id }}</a>
+        - Total: ${{ order.total_amount|floatformat:2 }}
+        - <span class="status {% if order.is_paid %}paid{% else %}unpaid{% endif %}">
+            {% if order.is_paid %}Paid{% else %}Unpaid{% endif %}
+          </span>
+      </li>
+    {% empty %}
+      <li>No orders yet</li>
+    {% endfor %}
+  </ul>
+</body>
+</html>

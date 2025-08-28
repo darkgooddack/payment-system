@@ -1,0 +1,25 @@
+services:
+  payment-service:
+    container_name: payment-service
+    build: .
+    volumes:
+      - ./app:/app
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    depends_on:
+      - payment-db
+
+  payment-db:
+    container_name: payment-db
+    image: postgres:15
+    env_file:
+      - .env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+
+volumes:
+  postgres_data:

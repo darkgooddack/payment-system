@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Order #{{ order.id }}</title>
+  <meta name="csrf-token" content="{{ csrf_token }}">
+  <script src="https://js.stripe.com/v3/"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background-color: #f9f9f9;
+      color: #333;
+    }
+
+    h1 {
+      color: #222;
+      margin-bottom: 1rem;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    li {
+      padding: 10px;
+      margin-bottom: 5px;
+      background-color: #fff;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+
+    button {
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    .status {
+      font-weight: bold;
+    }
+
+    .status.paid {
+      color: green;
+    }
+
+    .status.unpaid {
+      color: red;
+    }
+  </style>
+</head>
+<body>
+  <h1>Order #{{ order.id }}</h1>
+
+  <ul>
+    {% for item in order.items.all %}
+      <li>{{ item.quantity }} x {{ item.product.name }} — ${{ item.total_price|floatformat:2 }}</li>
+    {% endfor %}
+  </ul>
+
+  <p><b>Total:</b> ${{ order.total_amount|floatformat:2 }}</p>
+
+  <p>Status: <span class="status {% if order.is_paid %}paid{% else %}unpaid{% endif %}">
+      {% if order.is_paid %}Paid{% else %}Unpaid{% endif %}
+  </span></p>
+
+  <button id="checkout-button">Pay with Stripe</button>
+
+  <script>
+    const stripe = Stripe("{{ stripe_publishable_key }}");
+    const csrftoken = document.querySelector('meta[name="csrf-token"]').content;
+
+    document.getElementById("checkout-button").addEventListener("click", function () {
+      fetch("{% url 'checkout' order.id %}", {
+        method: "POST",
+        headers: {
+          "X-CSRFToken": csrftoken,
+          "Content-Type": "application/json",
+        },
+      })
+        .then(response => response.json())
+        .then(session => stripe.redirectToCheckout({ sessionId: session.id }))
+        .catch(error => console.error("Error:", error));
+    });
+  </script>
+</body>
+</html>
